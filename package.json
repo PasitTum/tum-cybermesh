@@ -1,0 +1,41 @@
+{
+  "name": "tum-cybermesh",
+  "version": "1.0.0",
+  "description": "TUM Sovereign CyberMesh — Autonomous XSIAM & Unified Defense Cloud Platform",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "cybermesh": "./dist/presentation/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "cli": "tsx src/presentation/cli/index.ts",
+    "hud": "tsx src/presentation/web/server.ts",
+    "test": "tsx --test tests/**/*.test.ts",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "xsiam",
+    "ebpf",
+    "lakehouse",
+    "soc-analyst",
+    "ctem",
+    "pqc",
+    "sovereign",
+    "defense-cloud"
+  ],
+  "author": "TUM Group Holdings <daywakler01@gmail.com>",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
