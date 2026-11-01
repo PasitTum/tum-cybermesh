@@ -70,7 +70,7 @@ export function createCyberMeshServer(customDeps?: Partial<ApiDependencies>) {
   return { server, deps, lakehouse, containmentExecutor };
 }
 
-if (process.argv[1] && process.argv[1].endsWith('server.ts')) {
+if (process.argv[1] && (process.argv[1].endsWith('server.ts') || process.argv[1].endsWith('server.js'))) {
   const { server } = createCyberMeshServer();
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 7799;
   server.listen(port, () => {

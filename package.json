@@ -8,7 +8,7 @@
     "cybermesh": "./dist/presentation/cli/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"const fs = require('fs'); if (fs.existsSync('src/presentation/web/static')) { fs.mkdirSync('dist/presentation/web/static', {recursive: true}); fs.cpSync('src/presentation/web/static', 'dist/presentation/web/static', {recursive: true}); }\"",
     "start": "tsx src/index.ts",
     "cli": "tsx src/presentation/cli/index.ts",
     "hud": "tsx src/presentation/web/server.ts",
