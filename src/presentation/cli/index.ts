@@ -10,6 +10,13 @@ import { TelemetryEvent } from '../../domain/telemetry/entities/telemetry-event.
 import { GenerateCanaryTokenUseCase } from '../../application/honeytoken/use-cases/generate-canary-token.use-case.js';
 import { ExecuteAutoRedTeamUseCase } from '../../application/ctem/use-cases/execute-auto-red-team.use-case.js';
 import { EvaluateExposureUseCase } from '../../application/ctem/use-cases/evaluate-exposure.use-case.js';
+import { Fips204MlDsaEngine } from '../../infrastructure/pqc/fips204-ml-dsa.engine.js';
+import { CommitAuditBlockUseCase } from '../../application/ledger/use-cases/commit-audit-block.use-case.js';
+import { VerifyInclusionProofUseCase } from '../../application/ledger/use-cases/verify-inclusion-proof.use-case.js';
+import { PqcAuditLedgerService } from '../../application/ledger/services/pqc-audit-ledger.service.js';
+import { BuildThreatLineageUseCase } from '../../application/hunting/use-cases/build-threat-lineage.use-case.js';
+import { HuntAnomalousLineageUseCase } from '../../application/hunting/use-cases/hunt-anomalous-lineage.use-case.js';
+import { MitreKillChainSimulator } from '../../application/simulation/mitre-kill-chain-simulator.js';
 import { createCyberMeshServer } from '../web/server.js';
 
 async function main() {
@@ -151,6 +158,96 @@ async function main() {
       break;
     }
 
+    case 'ledger:seal': {
+      console.log('📜 Sealing Quantum-Safe Merkle Audit Block (NIST FIPS 204 ML-DSA-65)...');
+      const mlDsa = new Fips204MlDsaEngine();
+      const ledger = new PqcAuditLedgerService(
+        new CommitAuditBlockUseCase(mlDsa),
+        new VerifyInclusionProofUseCase(mlDsa)
+      );
+
+      ledger.appendEvent(JSON.stringify({ event: 'SYS_EXEC', pid: 1001, user: 'root' }));
+      ledger.appendEvent(JSON.stringify({ event: 'SOCKET_FLOW', ip: '10.0.0.1', port: 443 }));
+      ledger.appendEvent(JSON.stringify({ event: 'PQC_ENVELOPE_SIGN', algo: 'ML-DSA-65' }));
+
+      const res = await ledger.sealBlock();
+      console.log(`  - Block Height: #${res.block.blockHeight}`);
+      console.log(`  - Merkle Root (SHA-384): ${res.merkleRoot.slice(0, 48)}...`);
+      console.log(`  - PQC ML-DSA-65 Signature: ${res.pqcSignatureHex.slice(0, 48)}...`);
+      console.log(`  - Sealed Events: ${res.leafCount} events in ${res.blockLatencyMs}ms`);
+
+      const proof = ledger.getInclusionProof(res.block.blockHeight, 0);
+      const verified = await ledger.verifyProof(proof, res.block.blockHeight);
+      console.log(`  - Merkle Inclusion & PQC Signature Verified: ${verified.valid ? '✅ VALID' : '❌ INVALID'}`);
+      break;
+    }
+
+    case 'hunt:lineage': {
+      console.log('🕵️ Reconstructing Causal Threat Lineage DAG Graph & Anomalous Hunting...');
+      const sampleEvents = [
+        new TelemetryEvent({
+          id: 'ev-1',
+          timestamp: '2026-11-01T12:00:00Z',
+          sourceHost: 'k8s-pod',
+          tenantId: 'tum-corp',
+          category: 'PROCESS_EXECUTION',
+          severity: 'INFORMATIONAL',
+          action: 'SPAWN',
+          metadata: { pid: 100, ppid: 1, processName: 'nginx' },
+        }),
+        new TelemetryEvent({
+          id: 'ev-2',
+          timestamp: '2026-11-01T12:01:00Z',
+          sourceHost: 'k8s-pod',
+          tenantId: 'tum-corp',
+          category: 'PROCESS_EXECUTION',
+          severity: 'HIGH',
+          action: 'SPAWN',
+          metadata: { pid: 200, ppid: 100, processName: 'bash' },
+        }),
+        new TelemetryEvent({
+          id: 'ev-3',
+          timestamp: '2026-11-01T12:02:00Z',
+          sourceHost: 'k8s-pod',
+          tenantId: 'tum-corp',
+          category: 'SOCKET_CONNECT',
+          severity: 'CRITICAL',
+          action: 'CONNECT',
+          metadata: { pid: 200, destinationIp: '198.51.100.4' },
+        }),
+      ];
+
+      const builder = new BuildThreatLineageUseCase();
+      const hunter = new HuntAnomalousLineageUseCase();
+      const graph = builder.execute(sampleEvents);
+      const findings = hunter.execute(graph);
+
+      console.log(`  - Graph Topology: ${graph.getAllNodes().length} Nodes, ${graph.getAllEdges().length} Edges`);
+      console.log(`  - Anomalous Hunt Findings: ${findings.length}`);
+      for (const f of findings) {
+        console.log(`    ⚠️  [${f.severity}] ${f.type}: ${f.summary}`);
+      }
+      break;
+    }
+
+    case 'sim:killchain': {
+      console.log('⚔️  Executing Lockheed Martin / MITRE ATT&CK Cyber Kill Chain Simulation...');
+      const executor = new InMemoryContainmentExecutor();
+      const fleet = new SocAnalystFleetService(
+        new AutonomousTriageUseCase(),
+        new AutonomousContainmentUseCase(executor)
+      );
+      const sim = new MitreKillChainSimulator(fleet);
+
+      const report = await sim.runFullKillChain('sovereign-core-node');
+      console.log(`  - Simulation ID: ${report.simulationId}`);
+      console.log(`  - Total Kill Chain Stages: ${report.totalStages}`);
+      console.log(`  - Attack Stopped At Phase: 🛑 ${report.stoppedAtPhase}`);
+      console.log(`  - Breach Prevented: ${report.breachPrevented ? '✅ YES' : '❌ NO'}`);
+      console.log(`  - Total Duration: ${report.totalSimulationDurationMs}ms`);
+      break;
+    }
+
     case 'hud': {
       const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 7799;
       const { server } = createCyberMeshServer();
@@ -167,6 +264,9 @@ async function main() {
       console.log('  soc:triage          Run autonomous SOC analyst fleet triage & 30s containment (MESH-EPIC-02)');
       console.log('  ctem:evaluate       Continuous threat exposure evaluation & auto red teaming (MESH-EPIC-03)');
       console.log('  canary:generate     Generate honeytoken decoys and canary traps (MESH-BKL-04)');
+      console.log('  ledger:seal         Seal pending events into NIST FIPS 204 PQC Merkle Block');
+      console.log('  hunt:lineage        Reconstruct causal threat lineage DAG & hunt LotL anomalies');
+      console.log('  sim:killchain       Simulate multi-stage Lockheed Martin / MITRE ATT&CK Kill Chain');
       console.log('  hud                 Launch 3D WebGL Threat Topology HUD server on port 7799 (MESH-BKL-06)');
       break;
   }
