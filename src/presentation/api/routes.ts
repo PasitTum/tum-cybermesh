@@ -13,6 +13,8 @@ import { PqcAuditLedgerService } from '../../application/ledger/services/pqc-aud
 import { BuildThreatLineageUseCase } from '../../application/hunting/use-cases/build-threat-lineage.use-case.js';
 import { HuntAnomalousLineageUseCase } from '../../application/hunting/use-cases/hunt-anomalous-lineage.use-case.js';
 import { MitreKillChainSimulator } from '../../application/simulation/mitre-kill-chain-simulator.js';
+import { P2pMerkleMeshService } from '../../application/mesh/services/p2p-merkle-mesh.service.js';
+import { EstablishMlKemTunnelUseCase } from '../../application/tunnel/use-cases/establish-mlkem-tunnel.use-case.js';
 
 export interface ApiDependencies {
   ingestUseCase: IngestTelemetryBatchUseCase;
@@ -28,6 +30,8 @@ export interface ApiDependencies {
   lineageUseCase?: BuildThreatLineageUseCase;
   huntUseCase?: HuntAnomalousLineageUseCase;
   killChainSimulator?: MitreKillChainSimulator;
+  meshService?: P2pMerkleMeshService;
+  tunnelUseCase?: EstablishMlKemTunnelUseCase;
 }
 
 export class ApiRouter {
@@ -38,7 +42,7 @@ export class ApiRouter {
     const method = req.method ?? 'GET';
 
     if (url.pathname.startsWith('/api/')) {
-      // Handle SSE Streaming separately (stream headers handled in TelemetryStreamHub)
+      // Handle SSE Streaming separately
       if (url.pathname === '/api/telemetry/stream' && method === 'GET') {
         if (this.deps.streamHub) {
           const subId = `sub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
@@ -79,10 +83,11 @@ export class ApiRouter {
             JSON.stringify({
               status: 'HEALTHY',
               platform: 'TUM Sovereign CyberMesh',
-              sprint: 'Sprint 2 (Active Mitigation & PQC Merkle Ledger)',
+              sprint: 'Sprint 3 (P2P Merkle Mesh & ML-KEM Tunnels)',
               timestamp: new Date().toISOString(),
               streamSubscribers: this.deps.streamHub?.getActiveSubscriberCount() ?? 0,
               ledgerHeight: this.deps.auditLedger?.getBlockHeight() ?? 0,
+              peerEnclaves: this.deps.meshService?.getAllPeers().length ?? 0,
             })
           );
           return true;
@@ -92,7 +97,6 @@ export class ApiRouter {
           const body = (await this.readJsonBody(req)) as any;
           const result = await this.deps.ingestUseCase.execute(body);
 
-          // Broadcast to SSE stream & append to PQC audit ledger
           if (body.events && Array.isArray(body.events)) {
             for (const rawEv of body.events) {
               const domEv = new TelemetryEvent(rawEv);
@@ -167,18 +171,17 @@ export class ApiRouter {
           return true;
         }
 
-        // --- Sprint 2 Endpoints ---
-
-        // 1. PQC Merkle Audit Ledger: Seal pending events into block
         if (url.pathname === '/api/ledger/seal' && method === 'POST') {
           if (!this.deps.auditLedger) throw new Error('PqcAuditLedgerService not configured');
           const commitRes = await this.deps.auditLedger.sealBlock();
+          if (this.deps.meshService) {
+            this.deps.meshService.broadcastBlock(commitRes.block.blockHeight, commitRes.merkleRoot);
+          }
           res.writeHead(200);
           res.end(JSON.stringify(commitRes));
           return true;
         }
 
-        // 2. PQC Merkle Audit Ledger: Get inclusion proof
         if (url.pathname === '/api/ledger/proof' && method === 'GET') {
           if (!this.deps.auditLedger) throw new Error('PqcAuditLedgerService not configured');
           const height = parseInt(url.searchParams.get('blockHeight') ?? '1', 10);
@@ -189,7 +192,6 @@ export class ApiRouter {
           return true;
         }
 
-        // 3. PQC Merkle Audit Ledger: Verify inclusion proof
         if (url.pathname === '/api/ledger/verify-proof' && method === 'POST') {
           if (!this.deps.auditLedger) throw new Error('PqcAuditLedgerService not configured');
           const body = (await this.readJsonBody(req)) as any;
@@ -200,7 +202,6 @@ export class ApiRouter {
           return true;
         }
 
-        // 4. Autonomous Threat Hunting Lineage
         if (url.pathname === '/api/hunting/lineage' && method === 'POST') {
           if (!this.deps.lineageUseCase) throw new Error('BuildThreatLineageUseCase not configured');
           const body = (await this.readJsonBody(req)) as { events: any[] };
@@ -221,13 +222,68 @@ export class ApiRouter {
           return true;
         }
 
-        // 5. Multi-Stage Kill Chain Simulation
         if (url.pathname === '/api/simulation/kill-chain' && method === 'POST') {
           if (!this.deps.killChainSimulator) throw new Error('MitreKillChainSimulator not configured');
           const body = (await this.readJsonBody(req)) as { targetEnclave?: string };
           const report = await this.deps.killChainSimulator.runFullKillChain(body.targetEnclave);
           res.writeHead(200);
           res.end(JSON.stringify(report));
+          return true;
+        }
+
+        // --- Sprint 3 Endpoints ---
+
+        // 1. P2P Merkle Mesh: Get all enclaves
+        if (url.pathname === '/api/mesh/peers' && method === 'GET') {
+          if (!this.deps.meshService) throw new Error('P2pMerkleMeshService not configured');
+          const peers = this.deps.meshService.getAllPeers();
+          res.writeHead(200);
+          res.end(JSON.stringify(peers));
+          return true;
+        }
+
+        // 2. P2P Merkle Mesh: Trigger consensus synchronization
+        if (url.pathname === '/api/mesh/sync' && method === 'POST') {
+          if (!this.deps.meshService) throw new Error('P2pMerkleMeshService not configured');
+          const body = (await this.readJsonBody(req)) as { blockHeight?: number };
+          const targetHeight = body.blockHeight ?? 1;
+          const verdict = this.deps.meshService.triggerConsensus(targetHeight);
+          res.writeHead(200);
+          res.end(JSON.stringify(verdict));
+          return true;
+        }
+
+        // 3. P2P Merkle Mesh: Simulate Byzantine Drift
+        if (url.pathname === '/api/mesh/simulate-byzantine' && method === 'POST') {
+          if (!this.deps.meshService) throw new Error('P2pMerkleMeshService not configured');
+          const body = (await this.readJsonBody(req)) as { nodeId: string; rogueRoot: string };
+          this.deps.meshService.simulateByzantineDrift(body.nodeId, body.rogueRoot);
+          res.writeHead(200);
+          res.end(JSON.stringify({ message: `Byzantine drift simulated on ${body.nodeId}` }));
+          return true;
+        }
+
+        // 4. NIST FIPS 203 ML-KEM Ephemeral Tunnel Handshake
+        if (url.pathname === '/api/tunnel/handshake' && method === 'POST') {
+          if (!this.deps.tunnelUseCase) throw new Error('EstablishMlKemTunnelUseCase not configured');
+          const body = (await this.readJsonBody(req)) as any;
+          const { session, encrypt } = this.deps.tunnelUseCase.execute({
+            initiatorNodeId: body.initiatorNodeId ?? 'edge-sensor-01',
+            responderNodeId: body.responderNodeId ?? 'lakehouse-core',
+            kemAlgorithm: body.kemAlgorithm ?? 'ML-KEM-768',
+          });
+
+          // Test frame encryption with derived session key
+          const sampleEncrypted = encrypt('TELEMETRY_SOVEREIGN_PAYLOAD_AUTHENTICATED');
+
+          res.writeHead(200);
+          res.end(
+            JSON.stringify({
+              session,
+              testFrame: sampleEncrypted,
+              verifiedStatus: 'PQC_ENCRYPTED_TUNNEL_ESTABLISHED',
+            })
+          );
           return true;
         }
 

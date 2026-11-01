@@ -11,12 +11,16 @@ import { GenerateCanaryTokenUseCase } from '../../application/honeytoken/use-cas
 import { ExecuteAutoRedTeamUseCase } from '../../application/ctem/use-cases/execute-auto-red-team.use-case.js';
 import { EvaluateExposureUseCase } from '../../application/ctem/use-cases/evaluate-exposure.use-case.js';
 import { Fips204MlDsaEngine } from '../../infrastructure/pqc/fips204-ml-dsa.engine.js';
+import { Fips203MlKemEngine } from '../../infrastructure/pqc/fips203-ml-kem.engine.js';
 import { CommitAuditBlockUseCase } from '../../application/ledger/use-cases/commit-audit-block.use-case.js';
 import { VerifyInclusionProofUseCase } from '../../application/ledger/use-cases/verify-inclusion-proof.use-case.js';
 import { PqcAuditLedgerService } from '../../application/ledger/services/pqc-audit-ledger.service.js';
 import { BuildThreatLineageUseCase } from '../../application/hunting/use-cases/build-threat-lineage.use-case.js';
 import { HuntAnomalousLineageUseCase } from '../../application/hunting/use-cases/hunt-anomalous-lineage.use-case.js';
 import { MitreKillChainSimulator } from '../../application/simulation/mitre-kill-chain-simulator.js';
+import { SynchronizeP2pMeshUseCase } from '../../application/mesh/use-cases/synchronize-p2p-mesh.use-case.js';
+import { P2pMerkleMeshService } from '../../application/mesh/services/p2p-merkle-mesh.service.js';
+import { EstablishMlKemTunnelUseCase } from '../../application/tunnel/use-cases/establish-mlkem-tunnel.use-case.js';
 import { createCyberMeshServer } from '../web/server.js';
 
 async function main() {
@@ -248,6 +252,45 @@ async function main() {
       break;
     }
 
+    case 'mesh:sync': {
+      console.log('🌐 Synchronizing Distributed P2P Merkle Mesh (Multi-Enclave BFT Consensus)...');
+      const mesh = new P2pMerkleMeshService(new SynchronizeP2pMeshUseCase());
+      const peers = mesh.getAllPeers();
+      console.log(`  - Total Enclaves Active: ${peers.length}`);
+      for (const p of peers) {
+        console.log(`    🏢 [${p.region}] ${p.enclaveName} (Block #${p.currentBlockHeight}, Status: ${p.status})`);
+      }
+
+      const verdict = mesh.triggerConsensus(1);
+      console.log(`\n  - Consensus Quorum Reached: ${verdict.quorumReached ? '✅ YES' : '❌ NO'} (${verdict.agreeingPeersCount}/${verdict.totalPeers} Peers)`);
+      console.log(`  - Canonical Merkle Root: ${verdict.agreedMerkleRoot.slice(0, 48)}...`);
+      console.log(`  - Byzantine Divergent Nodes Isolated: ${verdict.byzantineNodesIsolated.length}`);
+      break;
+    }
+
+    case 'tunnel:handshake': {
+      console.log('⚛️  Establishing NIST FIPS 203 ML-KEM Ephemeral Encrypted Telemetry Tunnel...');
+      const tunnel = new EstablishMlKemTunnelUseCase(new Fips203MlKemEngine());
+      const { session, encrypt, decrypt } = tunnel.execute({
+        initiatorNodeId: 'rayong-eec-edge-sensor',
+        responderNodeId: 'bangkok-core-lakehouse',
+        kemAlgorithm: 'ML-KEM-768',
+      });
+
+      console.log(`  - Session ID: ${session.sessionId}`);
+      console.log(`  - KEM Algorithm: ${session.kemAlgorithm} (NIST FIPS 203)`);
+      console.log(`  - Initiator: ${session.initiatorNodeId} <---> Responder: ${session.responderNodeId}`);
+      console.log(`  - Ciphertext Hex: ${session.ciphertextHex.slice(0, 48)}...`);
+
+      const testMsg = 'SOVEREIGN_KERNEL_TELEMETRY: FD_CONNECT 10.0.0.1:443';
+      const frame = encrypt(testMsg);
+      console.log(`  - AEAD Encrypted Frame: ${frame.ciphertextHex.slice(0, 48)}... (Tag: ${frame.authTagHex.slice(0, 16)})`);
+      const decrypted = decrypt(frame);
+      console.log(`  - Authenticated Decrypted Payload: "${decrypted}"`);
+      console.log(`  - Tunnel Status: ✅ ZERO-TRUST QUANTUM-SAFE ENCRYPTED`);
+      break;
+    }
+
     case 'hud': {
       const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 7799;
       const { server } = createCyberMeshServer();
@@ -267,6 +310,8 @@ async function main() {
       console.log('  ledger:seal         Seal pending events into NIST FIPS 204 PQC Merkle Block');
       console.log('  hunt:lineage        Reconstruct causal threat lineage DAG & hunt LotL anomalies');
       console.log('  sim:killchain       Simulate multi-stage Lockheed Martin / MITRE ATT&CK Kill Chain');
+      console.log('  mesh:sync           Cross-validate distributed P2P Merkle mesh consensus');
+      console.log('  tunnel:handshake    Establish ephemeral NIST FIPS 203 ML-KEM telemetry tunnel');
       console.log('  hud                 Launch 3D WebGL Threat Topology HUD server on port 7799 (MESH-BKL-06)');
       break;
   }

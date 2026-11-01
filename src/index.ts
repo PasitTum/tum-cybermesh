@@ -12,6 +12,9 @@ export * from './domain/ledger/entities/audit-block.entity.js';
 export * from './domain/ledger/entities/inclusion-proof.vo.js';
 export * from './domain/ledger/merkle-tree.js';
 export * from './domain/hunting/entities/threat-lineage-graph.entity.js';
+export * from './domain/mesh/entities/peer-node.entity.js';
+export * from './domain/mesh/entities/mesh-consensus-verdict.vo.js';
+export * from './domain/tunnel/entities/pqc-tunnel-session.entity.js';
 
 export * from './application/telemetry/use-cases/ingest-telemetry-batch.use-case.js';
 export * from './application/telemetry/use-cases/query-telemetry-lakehouse.use-case.js';
@@ -27,6 +30,9 @@ export * from './application/ledger/services/pqc-audit-ledger.service.js';
 export * from './application/hunting/use-cases/build-threat-lineage.use-case.js';
 export * from './application/hunting/use-cases/hunt-anomalous-lineage.use-case.js';
 export * from './application/simulation/mitre-kill-chain-simulator.js';
+export * from './application/mesh/use-cases/synchronize-p2p-mesh.use-case.js';
+export * from './application/mesh/services/p2p-merkle-mesh.service.js';
+export * from './application/tunnel/use-cases/establish-mlkem-tunnel.use-case.js';
 
 export * from './infrastructure/lakehouse/in-memory-telemetry-lakehouse.js';
 export * from './infrastructure/ebpf/socket-filter.js';
@@ -36,5 +42,6 @@ export * from './infrastructure/pqc/fips203-ml-kem.engine.js';
 export * from './infrastructure/scanner/pqc-discovery-scanner.js';
 export * from './infrastructure/containment/in-memory-containment-executor.js';
 export * from './infrastructure/streaming/telemetry-stream-hub.js';
+export * from './infrastructure/ledger/worm-append-store.js';
 
 export * from './presentation/web/server.js';

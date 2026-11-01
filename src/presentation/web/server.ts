@@ -14,6 +14,7 @@ import { SocAnalystFleetService } from '../../application/analyst/services/soc-a
 import { ExecuteAutoRedTeamUseCase } from '../../application/ctem/use-cases/execute-auto-red-team.use-case.js';
 import { EvaluateExposureUseCase } from '../../application/ctem/use-cases/evaluate-exposure.use-case.js';
 import { Fips204MlDsaEngine } from '../../infrastructure/pqc/fips204-ml-dsa.engine.js';
+import { Fips203MlKemEngine } from '../../infrastructure/pqc/fips203-ml-kem.engine.js';
 import { SignPqcEnvelopeUseCase } from '../../application/pqc/use-cases/sign-pqc-envelope.use-case.js';
 import { VerifyPqcEnvelopeUseCase } from '../../application/pqc/use-cases/verify-pqc-envelope.use-case.js';
 import { GenerateCanaryTokenUseCase } from '../../application/honeytoken/use-cases/generate-canary-token.use-case.js';
@@ -25,6 +26,9 @@ import { PqcAuditLedgerService } from '../../application/ledger/services/pqc-aud
 import { BuildThreatLineageUseCase } from '../../application/hunting/use-cases/build-threat-lineage.use-case.js';
 import { HuntAnomalousLineageUseCase } from '../../application/hunting/use-cases/hunt-anomalous-lineage.use-case.js';
 import { MitreKillChainSimulator } from '../../application/simulation/mitre-kill-chain-simulator.js';
+import { SynchronizeP2pMeshUseCase } from '../../application/mesh/use-cases/synchronize-p2p-mesh.use-case.js';
+import { P2pMerkleMeshService } from '../../application/mesh/services/p2p-merkle-mesh.service.js';
+import { EstablishMlKemTunnelUseCase } from '../../application/tunnel/use-cases/establish-mlkem-tunnel.use-case.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,6 +37,7 @@ export function createCyberMeshServer(customDeps?: Partial<ApiDependencies>) {
   const lakehouse = new InMemoryTelemetryLakehouse();
   const containmentExecutor = new InMemoryContainmentExecutor();
   const mlDsaEngine = new Fips204MlDsaEngine();
+  const mlKemEngine = new Fips203MlKemEngine();
 
   const streamHub = customDeps?.streamHub ?? new TelemetryStreamHub();
   const commitUseCase = new CommitAuditBlockUseCase(mlDsaEngine);
@@ -45,6 +50,9 @@ export function createCyberMeshServer(customDeps?: Partial<ApiDependencies>) {
       new AutonomousTriageUseCase(),
       new AutonomousContainmentUseCase(containmentExecutor)
     );
+
+  const meshService = customDeps?.meshService ?? new P2pMerkleMeshService(new SynchronizeP2pMeshUseCase());
+  const tunnelUseCase = customDeps?.tunnelUseCase ?? new EstablishMlKemTunnelUseCase(mlKemEngine);
 
   const deps: ApiDependencies = {
     ingestUseCase: customDeps?.ingestUseCase ?? new IngestTelemetryBatchUseCase(lakehouse),
@@ -60,6 +68,8 @@ export function createCyberMeshServer(customDeps?: Partial<ApiDependencies>) {
     lineageUseCase: customDeps?.lineageUseCase ?? new BuildThreatLineageUseCase(),
     huntUseCase: customDeps?.huntUseCase ?? new HuntAnomalousLineageUseCase(),
     killChainSimulator: customDeps?.killChainSimulator ?? new MitreKillChainSimulator(analystFleet),
+    meshService,
+    tunnelUseCase,
   };
 
   const router = new ApiRouter(deps);
@@ -86,7 +96,7 @@ export function createCyberMeshServer(customDeps?: Partial<ApiDependencies>) {
     res.end('Not Found');
   });
 
-  return { server, deps, lakehouse, containmentExecutor, streamHub, auditLedger };
+  return { server, deps, lakehouse, containmentExecutor, streamHub, auditLedger, meshService, tunnelUseCase };
 }
 
 if (process.argv[1] && (process.argv[1].endsWith('server.ts') || process.argv[1].endsWith('server.js'))) {
