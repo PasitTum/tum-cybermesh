@@ -8,6 +8,10 @@ export * from './domain/ctem/entities/threat-exposure.entity.js';
 export * from './domain/pqc/entities/pqc-envelope.entity.js';
 export * from './domain/pqc/value-objects/pqc-algorithm.vo.js';
 export * from './domain/honeytoken/entities/canary-token.entity.js';
+export * from './domain/ledger/entities/audit-block.entity.js';
+export * from './domain/ledger/entities/inclusion-proof.vo.js';
+export * from './domain/ledger/merkle-tree.js';
+export * from './domain/hunting/entities/threat-lineage-graph.entity.js';
 
 export * from './application/telemetry/use-cases/ingest-telemetry-batch.use-case.js';
 export * from './application/telemetry/use-cases/query-telemetry-lakehouse.use-case.js';
@@ -17,6 +21,12 @@ export * from './application/pqc/use-cases/sign-pqc-envelope.use-case.js';
 export * from './application/pqc/use-cases/verify-pqc-envelope.use-case.js';
 export * from './application/pqc/use-cases/scan-crypto-agility.use-case.js';
 export * from './application/honeytoken/use-cases/generate-canary-token.use-case.js';
+export * from './application/ledger/use-cases/commit-audit-block.use-case.js';
+export * from './application/ledger/use-cases/verify-inclusion-proof.use-case.js';
+export * from './application/ledger/services/pqc-audit-ledger.service.js';
+export * from './application/hunting/use-cases/build-threat-lineage.use-case.js';
+export * from './application/hunting/use-cases/hunt-anomalous-lineage.use-case.js';
+export * from './application/simulation/mitre-kill-chain-simulator.js';
 
 export * from './infrastructure/lakehouse/in-memory-telemetry-lakehouse.js';
 export * from './infrastructure/ebpf/socket-filter.js';
@@ -25,5 +35,6 @@ export * from './infrastructure/pqc/fips204-ml-dsa.engine.js';
 export * from './infrastructure/pqc/fips203-ml-kem.engine.js';
 export * from './infrastructure/scanner/pqc-discovery-scanner.js';
 export * from './infrastructure/containment/in-memory-containment-executor.js';
+export * from './infrastructure/streaming/telemetry-stream-hub.js';
 
 export * from './presentation/web/server.js';
