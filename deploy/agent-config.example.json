@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TumSensorAgentConfig",
+  "description": "Configuration schema for TUM CyberMesh Standalone Socket Sensor Agent",
+  "type": "object",
+  "properties": {
+    "endpoint": {
+      "type": "string",
+      "default": "http://127.0.0.1:7799",
+      "description": "CyberMesh Telemetry Lakehouse HTTP endpoint"
+    },
+    "tenantId": {
+      "type": "string",
+      "default": "tum-sovereign-tenant",
+      "description": "Sovereign tenant partition identifier"
+    },
+    "hostId": {
+      "type": "string",
+      "description": "Override for hostname in telemetry events"
+    },
+    "intervalMs": {
+      "type": "integer",
+      "default": 5000,
+      "minimum": 1000,
+      "description": "Socket polling interval in milliseconds"
+    },
+    "heartbeatIntervalMs": {
+      "type": "integer",
+      "default": 30000,
+      "minimum": 5000,
+      "description": "Heartbeat interval in milliseconds"
+    },
+    "exportAllSnapshots": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, exports all sockets every cycle; if false, exports differentials and anomalies only"
+    },
+    "maxBufferSize": {
+      "type": "integer",
+      "default": 10000,
+      "description": "Maximum in-memory offline queue capacity"
+    }
+  }
+}

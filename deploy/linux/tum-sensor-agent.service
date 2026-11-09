@@ -1,0 +1,24 @@
+[Unit]
+Description=TUM Sovereign CyberMesh Standalone eBPF Socket Sensor Agent
+Documentation=https://github.com/PasitTum/tum-cybermesh
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/tum-cybermesh
+Environment="NODE_ENV=production"
+Environment="CYBERMESH_ENDPOINT=http://127.0.0.1:7799"
+Environment="CYBERMESH_INTERVAL_MS=5000"
+Environment="CYBERMESH_TENANT_ID=tum-sovereign-tenant"
+ExecStart=/usr/bin/node /opt/tum-cybermesh/dist/presentation/sensor/sensor-agent-cli.js
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=tum-sensor-agent
+
+[Install]
+WantedBy=multi-user.target
