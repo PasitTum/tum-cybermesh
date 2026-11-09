@@ -3,147 +3,452 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏛️ TUM Sovereign CyberMesh — 3D Threat Topology & Autonomous XSIAM Command Center</title>
-  <link rel="stylesheet" href="./style.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            tum: {
-              gold: '#D4AF37',
-              navy: '#0B132B',
-              slate: '#1C2541',
-              cyan: '#48E5C2',
-              danger: '#EF4444',
-              warning: '#F59E0B'
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <meta name="description" content="TUM Sovereign CyberMesh live threat topology and autonomous XSIAM command console.">
+  <title>TUM SOVEREIGN CYBERMESH: Threat Topology and Autonomous XSIAM Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:ital,wght@0,400..700;1,400..700&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <style>
+/* Hallmark · shape: modern-minimal · genre: console · theme: Console */
+:root {
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.35rem;
+  --text-2xl: 1.75rem;
+
+  --dur-short: 180ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --color-paper: oklch(17% 0.008 250);
+  --color-paper-2: oklch(21% 0.009 250);
+  --color-paper-3: oklch(13.5% 0.007 250);
+  --color-ink: oklch(95% 0.005 250);
+  --color-ink-2: oklch(83% 0.008 250);
+  --color-muted: oklch(71% 0.01 250);
+  --color-dim: oklch(50% 0.01 250);
+  --color-rule: oklch(31% 0.01 250);
+  --color-rule-2: oklch(42% 0.012 250);
+
+  --color-accent: oklch(82% 0.15 80);
+  --color-accent-hover: oklch(86% 0.16 80);
+  --color-accent-ink: oklch(18% 0.04 75);
+  --color-accent-soft: oklch(26% 0.04 80);
+
+  --color-cool: oklch(77% 0.12 245);
+  --color-cool-soft: oklch(26% 0.04 245);
+
+  --color-ok: oklch(76% 0.15 150);
+  --color-ok-soft: oklch(24% 0.03 150);
+  --color-bad: oklch(70% 0.17 25);
+  --color-bad-soft: oklch(24% 0.035 25);
+
+  --font-display: "Host Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: var(--font-display);
+  --font-outlier: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+
+  --radius-card: 6px;
+  --radius-sm: 4px;
+  --rule-hair: 1px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+html, body {
+  overflow-x: clip;
+  scrollbar-color: var(--color-rule-2) var(--color-paper);
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Header Console Bar */
+header {
+  background: var(--color-paper-2);
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+  padding: var(--space-sm) var(--space-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  background: var(--color-paper-3);
+  border: var(--rule-hair) solid var(--color-rule-2);
+  color: var(--color-accent);
+  font-family: var(--font-outlier);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+.brand-title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.brand-sub {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  font-family: var(--font-outlier);
+}
+
+.header-badges {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+.spec-badge {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: var(--radius-sm);
+  border: var(--rule-hair) solid var(--color-rule);
+  background: var(--color-paper-3);
+  color: var(--color-ink-2);
+}
+.spec-badge-ok {
+  border-color: var(--color-ok);
+  color: var(--color-ok);
+  background: var(--color-ok-soft);
+}
+.spec-badge-accent {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.spec-badge-bad {
+  border-color: var(--color-bad);
+  color: var(--color-bad);
+  background: var(--color-bad-soft);
+}
+
+main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: var(--space-lg);
+}
+@media (max-width: 1024px) {
+  main { grid-template-columns: 1fr; }
+}
+
+.sidebar-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.panel {
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+  padding-bottom: var(--space-xs);
+}
+.panel-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* Stat cells */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xs);
+}
+.stat-box {
+  background: var(--color-paper-3);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm);
+}
+.stat-label {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  font-family: var(--font-outlier);
+}
+.stat-val {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-top: var(--space-2xs);
+}
+.stat-val-cool { color: var(--color-cool); }
+.stat-val-ok { color: var(--color-ok); }
+
+/* Buttons */
+.btn {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  border: var(--rule-hair) solid var(--color-rule-2);
+  background: var(--color-paper-3);
+  color: var(--color-ink);
+  transition: border-color var(--dur-short) var(--ease-out), color var(--dur-short) var(--ease-out);
+}
+.btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.btn:active {
+  opacity: 0.9;
+}
+.btn:disabled, [disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  border-color: var(--color-accent);
+}
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+  color: var(--color-accent-ink);
+}
+
+.btn-row {
+  display: flex;
+  gap: var(--space-xs);
+}
+.btn-row .btn { flex: 1; }
+
+/* Log stream */
+.analyst-feed {
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  background: var(--color-paper-3);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs);
+  color: var(--color-ink-2);
+}
+
+/* Canvas viewport */
+.viewport-panel {
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  height: 680px;
+}
+.viewport-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+  padding-bottom: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+.canvas-wrapper {
+  flex: 1;
+  position: relative;
+  background: var(--color-paper-3);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: grab;
+}
+canvas:active { cursor: grabbing; }
+
+.canvas-hud {
+  position: absolute;
+  bottom: var(--space-sm);
+  left: var(--space-sm);
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+  font-family: var(--font-outlier);
+  font-size: var(--text-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+}
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen overflow-x-hidden selection:bg-cyan-500 selection:text-black">
+<body>
   <!-- Top Navigation Bar -->
-  <header class="border-b border-cyan-900/40 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-3 flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <span class="text-2xl">🏛️</span>
+  <header>
+    <div class="brand">
+      <div class="brand-mark">M</div>
       <div>
-        <h1 class="text-lg font-bold tracking-wider text-cyan-400 flex items-center gap-2">
-          TUM SOVEREIGN CYBERMESH
-          <span class="text-xs px-2 py-0.5 rounded bg-cyan-950 border border-cyan-500/50 text-cyan-300">NIST FIPS 204 PQC</span>
-          <span class="text-xs px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/50 text-emerald-300">AUTONOMOUS XSIAM</span>
-        </h1>
-        <p class="text-xs text-slate-400">TUM Group Holdings — Hyper-Scale Kernel Telemetry Lakehouse & Defense Cloud</p>
+        <div class="brand-title">TUM Sovereign CyberMesh</div>
+        <div class="brand-sub">Hyper-scale kernel telemetry and autonomous XSIAM defense cloud</div>
       </div>
     </div>
-    <div class="flex items-center space-x-4 text-xs font-mono">
-      <div class="flex items-center space-x-1.5">
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-emerald-400">FLEET CONTAINMENT: <span id="stat-containment-sla"><30s (ACTIVE)</span></span>
-      </div>
-      <div class="border-l border-slate-700 pl-4 text-slate-400">
-        JIRA EPIC: <a href="https://daywakler.atlassian.net/browse/SCRUM-29" target="_blank" class="text-cyan-400 hover:underline">SCRUM-29</a>
-      </div>
+    <div class="header-badges">
+      <span class="spec-badge spec-badge-ok">NIST FIPS 204 PQC</span>
+      <span class="spec-badge spec-badge-accent">Autonomous XSIAM</span>
+      <span class="spec-badge spec-badge-ok">Containment SLA: &lt;30s</span>
     </div>
   </header>
 
   <!-- Main Grid Dashboard -->
-  <main class="p-6 grid grid-cols-12 gap-6">
+  <main>
     <!-- Left Column: Metrics & PQC Scanner -->
-    <div class="col-span-12 lg:col-span-4 space-y-6">
+    <div class="sidebar-col">
       <!-- Live Metrics Card -->
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-2xl backdrop-blur">
-        <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center justify-between">
-          <span>⚡ Lakehouse Telemetry Ingestion</span>
-          <span class="text-xs font-mono text-cyan-400" id="stat-ingestion-rate">100M+ / Day Target</span>
-        </h2>
-        <div class="grid grid-cols-2 gap-3 mb-4">
-          <div class="bg-slate-950/80 p-3 rounded-lg border border-slate-800/80">
-            <div class="text-xs text-slate-400">Hot Tier Buffer</div>
-            <div class="text-2xl font-mono font-bold text-cyan-400" id="stat-hot-tier">0</div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Lakehouse telemetry ingestion</div>
+          <span class="spec-badge" id="stat-ingestion-rate">100M+ target</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Hot tier buffer</div>
+            <div class="stat-val stat-val-cool" id="stat-hot-tier">0</div>
           </div>
-          <div class="bg-slate-950/80 p-3 rounded-lg border border-slate-800/80">
-            <div class="text-xs text-slate-400">Total Lakehouse Events</div>
-            <div class="text-2xl font-mono font-bold text-emerald-400" id="stat-total-events">0</div>
+          <div class="stat-box">
+            <div class="stat-label">Total lakehouse events</div>
+            <div class="stat-val stat-val-ok" id="stat-total-events">0</div>
           </div>
         </div>
-        <div class="flex gap-2">
-          <button id="btn-simulate-telemetry" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-xs font-bold py-2 px-3 rounded transition flex items-center justify-center gap-1">
-            <span>📥</span> Ingest Kernel Stream
+        <div class="btn-row">
+          <button id="btn-simulate-telemetry" class="btn btn-primary">
+            Ingest kernel stream
           </button>
-          <button id="btn-trigger-canary" class="flex-1 bg-amber-600 hover:bg-amber-500 text-slate-950 text-xs font-bold py-2 px-3 rounded transition flex items-center justify-center gap-1">
-            <span>🪤</span> Trigger Canary Trap
+          <button id="btn-trigger-canary" class="btn">
+            Trigger canary trap
           </button>
         </div>
       </div>
 
-      <!-- Autonomous SOC Analyst Fleet Feed -->
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-2xl backdrop-blur">
-        <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center justify-between">
-          <span>🤖 Autonomous Analyst Fleet (Tier 1 & 2)</span>
-          <span class="text-xs px-2 py-0.5 rounded bg-purple-950 border border-purple-500/50 text-purple-300">30s SLA</span>
-        </h2>
-        <div id="analyst-feed" class="space-y-3 font-mono text-xs max-h-64 overflow-y-auto pr-1">
-          <div class="text-slate-500 text-center py-4">Waiting for incoming telemetry events...</div>
+      <!-- Autonomous Analyst Fleet Feed -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Autonomous analyst fleet (tier 1 and 2)</div>
+          <span class="spec-badge spec-badge-accent">30s SLA</span>
+        </div>
+        <div id="analyst-feed" class="analyst-feed">
+          <div style="color: var(--color-dim); text-align: center; padding: 16px 0;">Waiting for incoming telemetry events…</div>
         </div>
       </div>
 
-      <!-- PQC Agility Scanner (MESH-BKL-07) -->
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-2xl backdrop-blur">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">
-            ⚛️ Post-Quantum Cryptographic Agility
-          </h2>
-          <button id="btn-scan-pqc" class="text-xs bg-slate-800 hover:bg-slate-700 text-cyan-400 px-2.5 py-1 rounded border border-cyan-800/50">
-            Scan Fleet
+      <!-- PQC Agility Scanner -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Post-quantum cryptographic agility</div>
+          <button id="btn-scan-pqc" class="btn">
+            Scan fleet
           </button>
         </div>
-        <div id="pqc-scan-content" class="text-xs text-slate-400 space-y-2">
-          <div class="flex justify-between items-center bg-slate-950 p-2 rounded">
-            <span>Standard:</span>
-            <span class="text-cyan-300 font-mono">NIST FIPS 204 (ML-DSA)</span>
+        <div id="pqc-scan-content" style="display: flex; flex-direction: column; gap: var(--space-xs); font-family: var(--font-outlier); font-size: var(--text-xs);">
+          <div style="display: flex; justify-content: space-between; padding: var(--space-xs); background: var(--color-paper-3); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-sm);">
+            <span style="color: var(--color-muted);">Standard</span>
+            <code style="color: var(--color-cool);">NIST FIPS 204 (ML-DSA)</code>
           </div>
-          <div class="flex justify-between items-center bg-slate-950 p-2 rounded">
-            <span>PQC Readiness:</span>
-            <span class="text-emerald-400 font-mono font-bold" id="pqc-readiness-val">80% Ready</span>
+          <div style="display: flex; justify-content: space-between; padding: var(--space-xs); background: var(--color-paper-3); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-sm);">
+            <span style="color: var(--color-muted);">PQC readiness</span>
+            <span style="color: var(--color-ok); font-weight: 700;" id="pqc-readiness-val">80% ready</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Center/Right Column: 3D Threat Topology WebGL Canvas (MESH-BKL-06) -->
-    <div class="col-span-12 lg:col-span-8 space-y-6">
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-2xl backdrop-blur flex flex-col h-[700px]">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-          <div>
-            <h2 class="text-base font-bold text-white flex items-center gap-2">
-              🌐 Live Threat Topology 3D Command Canvas (MESH-BKL-06)
-            </h2>
-            <p class="text-xs text-slate-400">eBPF Sockets, Kernel Process Trees, and Real-Time Blast Radius Containment</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-red-950/80 border border-red-500/50 text-red-300">
-              ● Containment Ring Active
-            </span>
-            <button id="btn-reset-view" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded text-slate-300">
-              Reset Camera
-            </button>
-          </div>
+    <!-- Center/Right Column: 3D Threat Topology WebGL Canvas -->
+    <div class="viewport-panel">
+      <div class="viewport-head">
+        <div>
+          <div class="panel-title">Live threat topology 3D command canvas</div>
+          <div style="font-size: var(--text-xs); color: var(--color-muted);">eBPF sockets, process trees, and real-time blast containment</div>
         </div>
+        <div style="display: flex; gap: var(--space-xs); align-items: center;">
+          <span class="spec-badge spec-badge-bad">Containment ring active</span>
+          <button id="btn-reset-view" class="btn">Reset camera</button>
+        </div>
+      </div>
 
-        <!-- Canvas Container -->
-        <div class="flex-1 relative w-full h-full mt-4 rounded-lg overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center">
-          <canvas id="topologyCanvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
-          
-          <!-- Canvas Overlay HUD -->
-          <div class="absolute bottom-4 left-4 bg-slate-900/90 border border-slate-800/80 rounded-lg p-3 text-xs font-mono space-y-1 backdrop-blur shadow-lg pointer-events-none">
-            <div class="text-cyan-400 font-bold">SOVEREIGN DEFENSE GRID</div>
-            <div class="text-slate-400">Nodes: <span id="hud-node-count" class="text-white">12</span> | Sockets: <span id="hud-socket-count" class="text-white">24</span></div>
-            <div class="text-slate-400">eBPF Kernel Filter: <span class="text-emerald-400">ARMED (Zero-Bypass)</span></div>
-          </div>
+      <!-- Canvas Container -->
+      <div class="canvas-wrapper">
+        <canvas id="topologyCanvas" aria-label="3D Threat Topology: Live eBPF socket telemetry and containment grid" role="img" tabindex="0"></canvas>
+        
+        <!-- Canvas Overlay HUD -->
+        <div class="canvas-hud">
+          <div style="font-weight: 700; color: var(--color-accent);">Sovereign defense grid</div>
+          <div style="color: var(--color-muted);">Nodes: <span id="hud-node-count" style="color: var(--color-ink);">12</span> | Sockets: <span id="hud-socket-count" style="color: var(--color-ink);">24</span></div>
+          <div style="color: var(--color-ok);">eBPF kernel filter: Armed (zero-bypass)</div>
         </div>
       </div>
     </div>

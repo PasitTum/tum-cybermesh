@@ -5,7 +5,8 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "cybermesh": "./dist/presentation/cli/index.js"
+    "cybermesh": "./dist/presentation/cli/index.js",
+    "tum-sensor-agent": "./dist/presentation/sensor/sensor-agent-cli.js"
   },
   "scripts": {
     "build": "tsc && node -e \"const fs = require('fs'); if (fs.existsSync('src/presentation/web/static')) { fs.mkdirSync('dist/presentation/web/static', {recursive: true}); fs.cpSync('src/presentation/web/static', 'dist/presentation/web/static', {recursive: true}); }\"",

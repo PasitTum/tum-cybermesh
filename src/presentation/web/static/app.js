@@ -1,4 +1,4 @@
-// Interactive 3D Threat Topology Canvas & Autonomous XSIAM HUD (MESH-BKL-06)
+// Interactive 3D Threat Topology Canvas & Autonomous XSIAM HUD (Hallmark Console standard)
 const canvas = document.getElementById('topologyCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -11,19 +11,6 @@ window.addEventListener('resize', () => {
 });
 
 // Defense Grid Nodes
-interface TopologyNode {
-  id: string;
-  name: string;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  type: 'GATEWAY' | 'LAKEHOUSE' | 'SOC_ANALYST' | 'PQC_ENCLAVE' | 'CANARY_TRAP' | 'THREAT_ACTOR';
-  contained: boolean;
-  pulsePhase: number;
-}
-
 const nodes = [
   { id: 'gw-1', name: 'eBPF Ingress Gateway', x: width * 0.25, y: height * 0.35, vx: 0.1, vy: 0.05, radius: 14, type: 'GATEWAY', contained: false, pulsePhase: 0 },
   { id: 'lake-1', name: 'Telemetry Lakehouse', x: width * 0.5, y: height * 0.5, vx: -0.05, vy: 0.08, radius: 20, type: 'LAKEHOUSE', contained: false, pulsePhase: 1 },
@@ -45,28 +32,29 @@ const links = [
 ];
 
 function getNodeColor(type, contained) {
-  if (contained) return '#EF4444'; // Red contained
+  if (contained) return '#dc2626'; // High-contrast solid red
   switch (type) {
-    case 'GATEWAY': return '#38BDF8';
-    case 'LAKEHOUSE': return '#34D399';
-    case 'SOC_ANALYST': return '#A855F7';
-    case 'PQC_ENCLAVE': return '#F59E0B';
-    case 'CANARY_TRAP': return '#EC4899';
-    case 'THREAT_ACTOR': return '#EF4444';
-    default: return '#94A3B8';
+    case 'GATEWAY': return '#38bdf8';
+    case 'LAKEHOUSE': return '#34d399';
+    case 'SOC_ANALYST': return '#a78bfa';
+    case 'PQC_ENCLAVE': return '#f59e0b';
+    case 'CANARY_TRAP': return '#ec4899';
+    case 'THREAT_ACTOR': return '#dc2626';
+    default: return '#94a3b8';
   }
 }
 
 let rotationAngle = 0;
 
 function render() {
-  ctx.fillStyle = '#030712';
+  // Hallmark dark paper background
+  ctx.fillStyle = '#0f141c';
   ctx.fillRect(0, 0, width, height);
 
   rotationAngle += 0.002;
 
-  // Draw background grid lines
-  ctx.strokeStyle = '#0F172A';
+  // Clean, crisp grid (no neon)
+  ctx.strokeStyle = '#1a2230';
   ctx.lineWidth = 1;
   const gridSize = 40;
   for (let x = 0; x < width; x += gridSize) {
@@ -93,56 +81,60 @@ function render() {
     ctx.lineTo(t.x, t.y);
 
     if (s.contained || t.contained) {
-      ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
+      ctx.strokeStyle = '#dc2626';
       ctx.setLineDash([4, 4]);
-      ctx.lineWidth = 2;
-    } else {
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
-      ctx.setLineDash([]);
       ctx.lineWidth = 1.5;
+    } else {
+      ctx.strokeStyle = '#2d3a4f';
+      ctx.setLineDash([]);
+      ctx.lineWidth = 1;
     }
     ctx.stroke();
     ctx.setLineDash([]);
   }
 
-  // Draw nodes & containment pulses
+  // Draw nodes & containment indicators
   for (const n of nodes) {
-    n.pulsePhase += 0.03;
-    const pulseRadius = n.radius + Math.sin(n.pulsePhase) * 6;
+    n.pulsePhase += 0.02;
 
-    // Containment shield ring
+    // Containment boundary ring (crisp dashed outline, no blur)
     if (n.contained) {
       ctx.beginPath();
-      ctx.arc(n.x, n.y, n.radius + 18, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6, 6]);
+      ctx.arc(n.x, n.y, n.radius + 12, 0, Math.PI * 2);
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+      ctx.fillStyle = 'rgba(220, 38, 38, 0.08)';
       ctx.fill();
     }
 
-    // Outer glow
+    // Outer subtle boundary ring
     ctx.beginPath();
-    ctx.arc(n.x, n.y, pulseRadius, 0, Math.PI * 2);
-    ctx.fillStyle = getNodeColor(n.type, n.contained) + '33';
-    ctx.fill();
+    ctx.arc(n.x, n.y, n.radius + 4, 0, Math.PI * 2);
+    ctx.strokeStyle = '#222d3d';
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
-    // Node body
+    // Node body (solid fill, 0 shadow blur)
     ctx.beginPath();
     ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
     ctx.fillStyle = getNodeColor(n.type, n.contained);
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = getNodeColor(n.type, n.contained);
-    ctx.fill();
     ctx.shadowBlur = 0;
+    ctx.fill();
+
+    // Crisp inner border
+    ctx.strokeStyle = '#0f141c';
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
     // Node label
-    ctx.fillStyle = '#E2E8F0';
-    ctx.font = '11px monospace';
-    ctx.fillText(n.name, n.x - n.name.length * 3.2, n.y + n.radius + 16);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '11px "Atkinson Hyperlegible Mono", ui-monospace, monospace';
+    const textWidth = ctx.measureText(n.name).width;
+    ctx.fillText(n.name, n.x - textWidth / 2, n.y + n.radius + 16);
   }
 
   requestAnimationFrame(render);
@@ -189,10 +181,10 @@ document.getElementById('btn-simulate-telemetry').addEventListener('click', asyn
       const result = await res.json();
       document.getElementById('stat-hot-tier').innerText = result.hotTierBuffered;
       document.getElementById('stat-total-events').innerText = result.lakehouseOffset;
-      addAnalystLog('Ingested kernel telemetry batch. Latency: ' + result.batchLatencyMs + 'ms');
+      addAnalystLog('[INGEST] Ingested kernel telemetry batch. Latency: ' + result.batchLatencyMs + 'ms');
     }
   } catch (err) {
-    addAnalystLog('Ingested local telemetry event (offline simulation)');
+    addAnalystLog('[INGEST] Ingested local telemetry event (offline simulation)');
   }
 });
 
@@ -222,11 +214,11 @@ document.getElementById('btn-trigger-canary').addEventListener('click', async ()
     if (res.ok) {
       const data = await res.json();
       addAnalystLog(
-        `🚨 [TIER-2 CONTAINED] ${data.tier1Decision.reasoning} | Containment actions: ${data.containmentActions.length} in <30s SLA.`
+        `[TIER-2 CONTAINED] ${data.tier1Decision.reasoning} | Containment actions: ${data.containmentActions.length} in <30s SLA.`
       );
     }
   } catch (e) {
-    addAnalystLog('🚨 [TIER-2 CONTAINED] Canary trap triggered from IP 198.51.100.89 severed within 18ms.');
+    addAnalystLog('[TIER-2 CONTAINED] Canary trap triggered from IP 198.51.100.89 severed within 18ms.');
   }
 });
 
@@ -236,17 +228,23 @@ document.getElementById('btn-scan-pqc').addEventListener('click', async () => {
     if (res.ok) {
       const data = await res.json();
       document.getElementById('pqc-readiness-val').innerText = `${data.overallMigrationReadinessPercent}% Ready (${data.quantumResistantCount} NIST Compliant)`;
-      addAnalystLog(`⚛️ PQC Discovery Scan: ${data.totalAssetsScanned} endpoints analyzed.`);
+      addAnalystLog(`[PQC SCAN] ${data.totalAssetsScanned} endpoints analyzed.`);
     }
   } catch (e) {
-    addAnalystLog('⚛️ PQC Discovery Scan completed: 80% Fleet Ready.');
+    addAnalystLog('[PQC SCAN] Completed: 80% Fleet Ready.');
   }
 });
 
 function addAnalystLog(msg) {
   const feed = document.getElementById('analyst-feed');
   const div = document.createElement('div');
-  div.className = 'p-2 rounded bg-slate-950 border border-slate-800 text-slate-300';
-  div.innerHTML = `<span class="text-cyan-400 font-bold">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+  div.style.padding = '6px 10px';
+  div.style.background = 'oklch(13.5% 0.007 250)';
+  div.style.border = '1px solid oklch(31% 0.01 250)';
+  div.style.borderRadius = '4px';
+  div.style.color = 'oklch(83% 0.008 250)';
+  div.style.fontFamily = '"Atkinson Hyperlegible Mono", ui-monospace, monospace';
+  div.style.fontSize = '0.75rem';
+  div.innerHTML = `<span style="color: oklch(82% 0.15 80); font-weight: 600;">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
   feed.prepend(div);
 }

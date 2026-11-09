@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import { PqcDiscoveryScanner } from '../../infrastructure/scanner/pqc-discovery-scanner.js';
 import { InMemoryTelemetryLakehouse } from '../../infrastructure/lakehouse/in-memory-telemetry-lakehouse.js';
 import { IngestTelemetryBatchUseCase } from '../../application/telemetry/use-cases/ingest-telemetry-batch.use-case.js';
@@ -27,31 +28,31 @@ async function main() {
   const args = process.argv.slice(2);
   const command = args[0] ?? 'help';
 
-  console.log('🏛️  TUM Sovereign CyberMesh — Autonomous XSIAM & Unified Defense Cloud');
-  console.log('    Classification: TUM Group Holdings Flagship\n');
+  console.log('[MESH] TUM Sovereign CyberMesh — Autonomous XSIAM & Unified Defense Cloud');
+  console.log('       Classification: TUM Group Holdings Flagship\n');
 
   switch (command) {
     case 'scan':
     case 'pqc:scan': {
-      console.log('🔍 Executing Post-Quantum Crypto-Agility Discovery Scan (MESH-BKL-07)...');
+      console.log('[SCAN] Executing Post-Quantum Crypto-Agility Discovery Scan (MESH-BKL-07)...');
       const scanner = new PqcDiscoveryScanner();
       const result = scanner.scanDefaultFleet();
 
-      console.log(`\n📊 Scan Summary:`);
+      console.log(`\n[SUMMARY] Scan Summary:`);
       console.log(`  - Total Endpoints Scanned: ${result.totalAssetsScanned}`);
       console.log(`  - Quantum-Resistant (NIST FIPS 204/203): ${result.quantumResistantCount}`);
       console.log(`  - Transitional Hybrid: ${result.transitionalHybridCount}`);
       console.log(`  - Quantum-Vulnerable (Legacy RSA/ECC): ${result.quantumVulnerableCount}`);
       console.log(`  - Overall Fleet PQC Readiness: ${result.overallMigrationReadinessPercent}%\n`);
 
-      console.log('📋 Asset Inventory:');
+      console.log('[INVENTORY] Asset Inventory:');
       for (const item of result.inventory) {
         const badge =
           item.status === 'QUANTUM_RESISTANT_NIST'
-            ? '✅ [PQC READY]'
+            ? '[PQC READY]'
             : item.status === 'TRANSITIONAL_HYBRID'
-            ? '⚠️  [HYBRID]'
-            : '🚨 [VULNERABLE]';
+            ? '[HYBRID]'
+            : '[VULNERABLE]';
         console.log(`  ${badge} ${item.assetName} (${item.cipherSuite} / ${item.signatureScheme}) -> ${item.recommendedPqcTarget}`);
       }
       break;
@@ -59,7 +60,7 @@ async function main() {
 
     case 'lakehouse':
     case 'lakehouse:benchmark': {
-      console.log('⚡ Benchmarking Lakehouse Ingestion Pipeline (MESH-EPIC-01)...');
+      console.log('[BENCHMARK] Benchmarking Lakehouse Ingestion Pipeline (MESH-EPIC-01)...');
       const lakehouse = new InMemoryTelemetryLakehouse(500000);
       const useCase = new IngestTelemetryBatchUseCase(lakehouse);
 
@@ -68,11 +69,11 @@ async function main() {
         id: `bench-ev-${i}`,
         timestamp: new Date().toISOString(),
         sourceHost: `host-${i % 20}.tum.internal`,
-        tenantId: `tenant-${i % 5}`,
+        tenantId: 'tum-corp',
         category: 'KERNEL_SYSCALL' as const,
-        severity: (i % 50 === 0 ? 'HIGH' : 'INFORMATIONAL') as any,
-        action: `SYS_CONNECT: fd=${i}`,
-        metadata: { pid: 1000 + i },
+        severity: 'INFORMATIONAL' as const,
+        action: 'SYS_EXECVE',
+        metadata: { pid: 1000 + (i % 100), latencyUs: 12 },
       }));
 
       const start = performance.now();
@@ -87,7 +88,7 @@ async function main() {
     }
 
     case 'soc:triage': {
-      console.log('🤖 Running Autonomous SOC Analyst Fleet Simulation (MESH-EPIC-02)...');
+      console.log('[ANALYST] Running Autonomous SOC Analyst Fleet Simulation (MESH-EPIC-02)...');
       const executor = new InMemoryContainmentExecutor();
       const fleet = new SocAnalystFleetService(
         new AutonomousTriageUseCase(),
@@ -115,12 +116,12 @@ async function main() {
       console.log(`  - MITRE Technique: ${result.tier1Decision.mitreMapping?.techniqueId} (${result.tier1Decision.mitreMapping?.techniqueName})`);
       console.log(`  - Tier-2 Containment Executed: ${result.containmentExecuted ? 'YES' : 'NO'}`);
       console.log(`  - Containment Actions: ${result.containmentActions.map((a) => a.type + ' -> ' + a.target).join(', ')}`);
-      console.log(`  - Execution SLA: ${result.incident.getContainmentDurationMs() ?? 0}ms (DoD Requirement: <30,000ms ✅)`);
+      console.log(`  - Execution SLA: ${result.incident.getContainmentDurationMs() ?? 0}ms (DoD Requirement: <30,000ms [PASS])`);
       break;
     }
 
     case 'canary:generate': {
-      console.log('🪤 Generating Autonomous Honeytoken & Canary Traps (MESH-BKL-04)...');
+      console.log('[CANARY] Generating Autonomous Honeytoken & Canary Traps (MESH-BKL-04)...');
       const gen = new GenerateCanaryTokenUseCase();
       const jwtToken = gen.execute({
         tokenType: 'SOVEREIGN_JWT_TOKEN',
@@ -142,7 +143,7 @@ async function main() {
     }
 
     case 'ctem:evaluate': {
-      console.log('🛡️ Evaluating Continuous Threat Exposure Management & Auto-Red Teaming (MESH-EPIC-03)...');
+      console.log('[CTEM] Evaluating Continuous Threat Exposure Management & Auto-Red Teaming (MESH-EPIC-03)...');
       const ctem = new EvaluateExposureUseCase(new ExecuteAutoRedTeamUseCase());
       const { report } = ctem.execute({
         tenantId: 'tum-sovereign',
@@ -158,12 +159,12 @@ async function main() {
       console.log(`  - Exposure Score: ${report.exposureScore}/100 (Risk Level: ${report.riskLevel})`);
       console.log(`  - Red Team Probes Executed: ${report.probes.length}`);
       console.log(`  - Prioritized Remediation Plan:`);
-      report.remediationPlan.forEach((step, idx) => console.log(`      ${idx + 1}. ${step}`));
+      report.remediationPlan.forEach((step: string, idx: number) => console.log(`      ${idx + 1}. ${step}`));
       break;
     }
 
     case 'ledger:seal': {
-      console.log('📜 Sealing Quantum-Safe Merkle Audit Block (NIST FIPS 204 ML-DSA-65)...');
+      console.log('[LEDGER] Sealing Quantum-Safe Merkle Audit Block (NIST FIPS 204 ML-DSA-65)...');
       const mlDsa = new Fips204MlDsaEngine();
       const ledger = new PqcAuditLedgerService(
         new CommitAuditBlockUseCase(mlDsa),
@@ -182,12 +183,12 @@ async function main() {
 
       const proof = ledger.getInclusionProof(res.block.blockHeight, 0);
       const verified = await ledger.verifyProof(proof, res.block.blockHeight);
-      console.log(`  - Merkle Inclusion & PQC Signature Verified: ${verified.valid ? '✅ VALID' : '❌ INVALID'}`);
+      console.log(`  - Merkle Inclusion & PQC Signature Verified: ${verified.valid ? '[VALID]' : '[INVALID]'}`);
       break;
     }
 
     case 'hunt:lineage': {
-      console.log('🕵️ Reconstructing Causal Threat Lineage DAG Graph & Anomalous Hunting...');
+      console.log('[HUNT] Reconstructing Causal Threat Lineage DAG Graph & Anomalous Hunting...');
       const sampleEvents = [
         new TelemetryEvent({
           id: 'ev-1',
@@ -229,13 +230,13 @@ async function main() {
       console.log(`  - Graph Topology: ${graph.getAllNodes().length} Nodes, ${graph.getAllEdges().length} Edges`);
       console.log(`  - Anomalous Hunt Findings: ${findings.length}`);
       for (const f of findings) {
-        console.log(`    ⚠️  [${f.severity}] ${f.type}: ${f.summary}`);
+        console.log(`    [${f.severity}] ${f.type}: ${f.summary}`);
       }
       break;
     }
 
     case 'sim:killchain': {
-      console.log('⚔️  Executing Lockheed Martin / MITRE ATT&CK Cyber Kill Chain Simulation...');
+      console.log('[SIMULATION] Executing Lockheed Martin / MITRE ATT&CK Cyber Kill Chain Simulation...');
       const executor = new InMemoryContainmentExecutor();
       const fleet = new SocAnalystFleetService(
         new AutonomousTriageUseCase(),
@@ -246,30 +247,30 @@ async function main() {
       const report = await sim.runFullKillChain('sovereign-core-node');
       console.log(`  - Simulation ID: ${report.simulationId}`);
       console.log(`  - Total Kill Chain Stages: ${report.totalStages}`);
-      console.log(`  - Attack Stopped At Phase: 🛑 ${report.stoppedAtPhase}`);
-      console.log(`  - Breach Prevented: ${report.breachPrevented ? '✅ YES' : '❌ NO'}`);
+      console.log(`  - Attack Stopped At Phase: [CONTAINED] ${report.stoppedAtPhase}`);
+      console.log(`  - Breach Prevented: ${report.breachPrevented ? 'YES' : 'NO'}`);
       console.log(`  - Total Duration: ${report.totalSimulationDurationMs}ms`);
       break;
     }
 
     case 'mesh:sync': {
-      console.log('🌐 Synchronizing Distributed P2P Merkle Mesh (Multi-Enclave BFT Consensus)...');
+      console.log('[MESH] Synchronizing Distributed P2P Merkle Mesh (Multi-Enclave BFT Consensus)...');
       const mesh = new P2pMerkleMeshService(new SynchronizeP2pMeshUseCase());
       const peers = mesh.getAllPeers();
       console.log(`  - Total Enclaves Active: ${peers.length}`);
       for (const p of peers) {
-        console.log(`    🏢 [${p.region}] ${p.enclaveName} (Block #${p.currentBlockHeight}, Status: ${p.status})`);
+        console.log(`    [${p.region}] ${p.enclaveName} (Block #${p.currentBlockHeight}, Status: ${p.status})`);
       }
 
       const verdict = mesh.triggerConsensus(1);
-      console.log(`\n  - Consensus Quorum Reached: ${verdict.quorumReached ? '✅ YES' : '❌ NO'} (${verdict.agreeingPeersCount}/${verdict.totalPeers} Peers)`);
+      console.log(`\n  - Consensus Quorum Reached: ${verdict.quorumReached ? 'YES' : 'NO'} (${verdict.agreeingPeersCount}/${verdict.totalPeers} Peers)`);
       console.log(`  - Canonical Merkle Root: ${verdict.agreedMerkleRoot.slice(0, 48)}...`);
       console.log(`  - Byzantine Divergent Nodes Isolated: ${verdict.byzantineNodesIsolated.length}`);
       break;
     }
 
     case 'tunnel:handshake': {
-      console.log('⚛️  Establishing NIST FIPS 203 ML-KEM Ephemeral Encrypted Telemetry Tunnel...');
+      console.log('[TUNNEL] Establishing NIST FIPS 203 ML-KEM Ephemeral Encrypted Telemetry Tunnel...');
       const tunnel = new EstablishMlKemTunnelUseCase(new Fips203MlKemEngine());
       const { session, encrypt, decrypt } = tunnel.execute({
         initiatorNodeId: 'rayong-eec-edge-sensor',
@@ -287,7 +288,7 @@ async function main() {
       console.log(`  - AEAD Encrypted Frame: ${frame.ciphertextHex.slice(0, 48)}... (Tag: ${frame.authTagHex.slice(0, 16)})`);
       const decrypted = decrypt(frame);
       console.log(`  - Authenticated Decrypted Payload: "${decrypted}"`);
-      console.log(`  - Tunnel Status: ✅ ZERO-TRUST QUANTUM-SAFE ENCRYPTED`);
+      console.log(`  - Tunnel Status: [SECURE] ZERO-TRUST QUANTUM-SAFE ENCRYPTED`);
       break;
     }
 
@@ -295,7 +296,7 @@ async function main() {
       const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 7799;
       const { server } = createCyberMeshServer();
       server.listen(port, () => {
-        console.log(`🌐 3D Threat Topology WebGL HUD active at: http://localhost:${port}`);
+        console.log(`[HUD] 3D Threat Topology WebGL HUD active at: http://localhost:${port}`);
       });
       break;
     }

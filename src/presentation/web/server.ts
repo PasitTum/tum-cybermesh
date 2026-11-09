@@ -103,6 +103,6 @@ if (process.argv[1] && (process.argv[1].endsWith('server.ts') || process.argv[1]
   const { server } = createCyberMeshServer();
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 7799;
   server.listen(port, () => {
-    console.log(`🏛️ TUM Sovereign CyberMesh HUD running at http://localhost:${port}`);
+    console.log(`[MESH] TUM Sovereign CyberMesh HUD running at http://localhost:${port}`);
   });
 }

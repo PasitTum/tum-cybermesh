@@ -1,4 +1,11 @@
+/**
+ * TUM Sovereign CyberMesh — Containment Execution Engine
+ * Clean Architecture Implementation of IContainmentExecutionPort
+ * Supports In-Memory Simulation and Live SOAR Firewall Dispatch (Fortinet & Palo Alto)
+ */
+
 import { IContainmentExecutionPort } from '../../application/analyst/use-cases/autonomous-containment.use-case.js';
+import { FirewallOrchestratorService } from '../soar/connectors/firewall-orchestrator.service.js';
 
 export class InMemoryContainmentExecutor implements IContainmentExecutionPort {
   public killedProcesses: Set<number> = new Set();
@@ -6,6 +13,12 @@ export class InMemoryContainmentExecutor implements IContainmentExecutionPort {
   public firewallDropRules: Set<string> = new Set();
   public quarantinedHosts: Set<string> = new Set();
   public revokedHoneytokens: Set<string> = new Set();
+
+  constructor(private readonly firewallOrchestrator?: FirewallOrchestratorService) {}
+
+  public getFirewallOrchestrator(): FirewallOrchestratorService | undefined {
+    return this.firewallOrchestrator;
+  }
 
   public async killProcess(pid: number): Promise<boolean> {
     this.killedProcesses.add(pid);
@@ -18,8 +31,15 @@ export class InMemoryContainmentExecutor implements IContainmentExecutionPort {
     return true;
   }
 
-  public async injectFirewallDrop(ip: string): Promise<boolean> {
+  public async injectFirewallDrop(ip: string, reason?: string): Promise<boolean> {
     this.firewallDropRules.add(ip);
+    if (this.firewallOrchestrator) {
+      const summary = await this.firewallOrchestrator.blockIpAcrossFleet({
+        ip,
+        reason: reason ?? 'Autonomous CyberMesh SOAR containment trigger',
+      });
+      return summary.overallSuccess;
+    }
     return true;
   }
 
